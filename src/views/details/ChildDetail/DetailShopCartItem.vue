@@ -1,19 +1,17 @@
 <template>
-  <div class="box">
-    <slot></slot>
-  </div>
-
+    <div class="imags">
+      <slot></slot>
+    </div>
 </template>
 
 <script>
     export default {
-        name: "HomeBox"
+        name: "DetailShopCartItem"
     }
 </script>
 
 <style scoped>
-  .box{
+  .imags img{
     width: 100%;
   }
-
 </style>

@@ -11,8 +11,9 @@ const Sort = () =>
 const Im = () =>
   import ('../views/Im/Im');
 
-const aaa = () =>
-  import("../views/cart/aaa")
+
+const details = () =>
+  import("../views/details/Details")
 
 
 Vue.use(Router);
@@ -38,9 +39,11 @@ const routes = [{
     component: Im
   },
   {
-    path: '/aaa',
-    component:aaa
+    // path: '/detail/:iid',
+    path: "/detail",
+    component:details
   }
+
 ]
 const router = new Router({
   routes:routes,
