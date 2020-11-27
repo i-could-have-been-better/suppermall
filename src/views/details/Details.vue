@@ -22,7 +22,14 @@
         <home-box :goodList="recommend" ref="goods"/>
         <p class="more">下拉加载更多</p>
       </scrool>
-      <detail-shop-cart class="cart" />
+
+      <back-top @click.native="backClick" v-show="BackTopIsShow"/>
+
+      <detail-shop-cart class="cart" @addCart="addCart"  />
+
+<!--    普通方式-->
+<!--      <toast :message="ToastMeg" :isShow="ToastShow"/>-->
+
     </div>
 </template>
 
@@ -34,22 +41,27 @@
   import DetailParameter from "./ChildDetail/DetailParameter";
   import DetailUevaluate from "./ChildDetail/DetailUevaluate";
   import DetailShopCart from "./ChildDetail/DetailShopCart";
+  import detailBaseInfo from "./ChildDetail/detailBaseInfo";
 
 
   import {itemParams} from "common/utils";
 
   import Scrool from "components/common/beteer-scroll/Scrool"
   import HomeBox from "components/content/goods/HomeBox";
+  // import Toast from "components/common/toast/Toast";
 
   //数据请求
   import {getDetail,getGoods} from "../../network/detail";
   import {Goods ,ShopInfo,throttle,debouce} from "../../common/utils";
 
+  //扩展知识
+  import {mapActions} from "vuex"
 
-  import detailBaseInfo from "./ChildDetail/detailBaseInfo";
+
 
   //混入
   import {ImageLoade} from "../../common/mixins";
+  import BackTop from "components/content/backTop/BackTop";
 
   export default {
       name: "Details",
@@ -67,12 +79,17 @@
           ImageLoad:null,
           ContentPosition:[],
           getPosition:{},
-          positionY:0
+          positionY:0,
+          backTopPostion:1000,
+          BackTopIsShow:false,
+          // ToastMeg : "",
+          // ToastShow:false
         }
       },
       mixins:[ImageLoade],
 
       components:{
+        BackTop,
         detailNavBar,
         detailSwiper,
         detailBaseInfo,
@@ -82,7 +99,8 @@
         DetailParameter,
         DetailUevaluate,
         HomeBox,
-        DetailShopCart
+        DetailShopCart,
+        // Toast
       },
       mounted() {
         console.log("detail")
@@ -99,8 +117,6 @@
           this.ContentPosition.push(this.$refs.uevaluate.$el.offsetTop);
           this.ContentPosition.push(this.$refs.goods.$el.offsetTop - 50);
         },100)
-
-
       },
       created() {
         //第一种方式接收
@@ -111,6 +127,7 @@
         //查找里面得数据
         getDetail(this.iid).then((res)=>{
           const data = res.data.result;
+
           //获取轮播图的信息
           this.TopImages = data.itemInfo.topImages;
           //类构造器
@@ -145,7 +162,6 @@
           //   console.log(this.ContentPosition)
           // })
 
-
         })
 
         //获取推荐数据信息
@@ -157,16 +173,22 @@
 
       },
     methods:{
+      //映射vuex中得actions里面得内容
+      ...mapActions(["isWaresExist"]),
+
+      //监听图片是否加载完毕，如果完毕的话scroll刷新
       imageload(){
         this.$refs.scroll.refresh();
 
-        //调用懒加载
+        //调用防抖动加载
         this.getPosition();
 
       },
+      //标题滚动到对应位置
       TitleClick(index){
         this.$refs.scroll.ScrollTo(0,-this.ContentPosition[index]);
       },
+      //监听滚动
       scrollBack(position){
         this.positionY = -position.y;
 
@@ -181,13 +203,55 @@
             this.$refs.navBar.curentIndex = 3
           }
 
+        //处理backTop什么时候显示
+        if (this.positionY >= this.backTopPostion  ){
+          this.BackTopIsShow = true
+        }else {
+          this.BackTopIsShow = false
+        }
 
+      },
+      //回到顶部
+      backClick(){
+        this.$refs.scroll.ScrollTo(0,0,500)
+      },
+      //加入购物车
+      addCart(){
+        //添加购物车需要显示的数据
+        let wares = {}
+        wares.image = this.TopImages[0];
+        wares.title = this.goods.title;
+        wares.desc = this.goodShop.desc;
+        wares.price = this.goods.price;
+        wares.iid = this.iid;
 
-
-
-
+        //调用得是Actions里面得方法
+        // this.$store.dispatch("isWaresExist",wares).then((res)=>{
+        //   this.ToastMeg = res;
+        //   this.ToastShow = true;
+        //
+        //   setTimeout(()=>{
+        //     this.ToastMeg = "";
+        //     this.ToastShow = false;
+        //   },1500)
+        // });
+        //普通方式
+        //利用跟Vuex 进行映射 mapGetters mapActions ...
+        // this.isWaresExist(wares).then((res)=>{
+        //   // this.ToastMeg = res;
+        //   //   this.ToastShow = true;
+        //   //
+        //   //   setTimeout(()=>{
+        //   //     this.ToastMeg = "";
+        //   //     this.ToastShow = false;
+        //   //   },1500)
+        //
+        // })
+        //使用插件得形式用
+        this.isWaresExist(wares).then((res)=>{
+          this.$toast.show(res,1500);
+        })
       }
-
     },
     computed:{
       windowHeight(){
@@ -202,17 +266,17 @@
 
 
 <style scoped>
-  .detail{
+  .detail {
     position: relative;
     z-index: 9;
-    background: white;
     height: 100vh;
+
   }
   .cart{
-    position: relative;
-    bottom: 20px;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
     left: 0;
-    z-index: 200;
     height: 49px;
   }
   .more{

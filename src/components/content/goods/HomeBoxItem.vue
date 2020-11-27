@@ -1,7 +1,7 @@
 <template>
     <div class="boxItem" @click.prevent="toDetails">
       <a href="">
-        <img :src="showImage" @load="imageLoad">
+        <img v-lazy="showImage" @load="imageLoad">
         <div>
           <p class="text">{{item.title}}</p>
           <span class="price">{{item.price}}</span>

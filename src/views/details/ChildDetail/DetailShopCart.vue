@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="right">
-      <div class="box1">
+      <div class="box1" @click="addCart">
         <span>加入购物车</span>
       </div>
       <div class="box2">
@@ -43,7 +43,13 @@
       },
       methods:{
         join(){
-          this.isjoin = !this.isjoin
+          this.isjoin = !this.isjoin;
+          if (this.isjoin){
+            this.$toast.show("收藏成功",2000);
+          }
+        },
+        addCart(){
+          this.$emit("addCart");
         }
       }
     }
@@ -55,6 +61,7 @@
     height: 59px;
     background: white;
     align-items: center;
+    padding-left: 10px;
     justify-items: center;
   }
   .cart>div{
@@ -77,16 +84,16 @@
     width: 29px;
     background-image: url("../../../assets/images/detail/detail_bottom.png") ;
     background-repeat: no-repeat;
-    background-position: 0px -72px;
-    background-size: 30px;
+    background-position: 0px -58px;
+    background-size: 25px;
   }
   .image2{
     height: 29px;
     width: 29px;
     background-image: url("../../../assets/images/detail/detail_bottom.png") ;
-    background-position: 0px -135px;
+    background-position: 0px -110px;
     background-repeat: no-repeat;
-    background-size: 30px;
+    background-size: 25px;
   }
 
   .image3{
@@ -94,11 +101,11 @@
     width: 29px;
     background-image: url("../../../assets/images/detail/detail_bottom.png") ;
     background-repeat: no-repeat;
-    background-size: 30px;
+    background-size: 25px;
   }
 
   .join{
-    background-position: 0px -37px;
+    background-position: 0px -30px;
   }
 
   .box1{
